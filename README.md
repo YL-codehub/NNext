@@ -7,7 +7,7 @@ From each a set of n points at fixed intervals, guessing the value of the (n+1)t
 Spoiler: it works
 
 <p align="center">
-  <img src="https://github.com/YL-codehub/NNext/blob/main/image.png"/>
+  <img src="https://github.com/YL-codehub/NNext/blob/master/image.png"/>
 </p>
 
 ## Installation
