@@ -7,24 +7,24 @@ From each a set of n points at fixed intervals, guessing the value of the (n+1)t
 Spoiler: it works
 
 <p align="center">
-  <img src="https://github.com/YL-codehub/YL-codehub/blob/main/image.png" alt="Header" />
+  <img src="https://github.com/YL-codehub/NNext/blob/main/image.png"/>
 </p>
 
 ## Installation
 
-'''
+```
 NNext> python -m venv nnenv
-'''
+```
 
-'''
+```
 NNext> .\nnenv\Scripts\Activate.ps1
-'''
+```
 
-'''
+```
 NNext> pip install -r .\requirements.txt
-'''
+```
 
-'''
+```
 python ./main.py
-'''
+```
 
