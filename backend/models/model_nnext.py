@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
-from model import BaseModel
-from backend.data.data_assets import Assets
+from backend.models.model import BaseModel
+from backend.data.dataset_assets import Assets
 from utils.torch_tools import MLP
 
 class ModelNNext(BaseModel):
@@ -9,25 +9,27 @@ class ModelNNext(BaseModel):
 
     def __init__(self, cfg):
         super().__init__(cfg)
+        self.data = Assets(self.cfg.data)
+        self.X_train = None
+        self.Y_train = None
 
-    @abstractmethod
-    def load_data(self):
-        my_data = Assets(self.cfg.data)
-        # X2 = torch.tensor(X_train, dtype=torch.float32)
-        # Y2 = torch.tensor(y_train, dtype=torch.float32).reshape(-1, N)  # updated to match y2's new shape
-        # X2_test = torch.tensor(X_test, dtype=torch.float32)
-        # Y2_test = torch.tensor(y_test, dtype=torch.float32).reshape(-1, N)  # updated to match y2's new shape
-        pass
-
-    @abstractmethod
     def build(self):
-        self.model = MLP(self.cfg.model,)##and what?)
-        pass
+        self.X_train = self.data.X_train_set.reshaped_2D_tensor()
+        self.Y_train = self.data.Y_train_set.reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
+        self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
 
-    @abstractmethod
     def train(self):
-        pass
+        self.model.train(self.X_train,self.Y_train)
 
-    @abstractmethod
-    def evaluate(self):
-        pass
+    def evaluate(self, X):
+        return self.model.predict(X)
+
+
+if __name__ == "__main__":
+    from configs.config import get_cfg
+    cfg = get_cfg("model_finance.yaml")
+    # Instantiate and print the model
+    model = ModelNNext(cfg)
+    model.prepare_data()
+    model.build()
+    print(model.model)

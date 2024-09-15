@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from backend.data.dataset import Dataset
 
 
 class BaseModel(ABC):
@@ -7,11 +8,11 @@ class BaseModel(ABC):
 
     def __init__(self, cfg):
         self.cfg = cfg
+        self.data = None
         self.model = None
 
-    @abstractmethod
-    def load_data(self):
-        pass
+    def prepare_data(self):
+        self.data.sequence()
 
     @abstractmethod
     def build(self):

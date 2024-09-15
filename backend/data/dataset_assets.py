@@ -1,4 +1,4 @@
-from data import Dataset
+from backend.data.dataset import Dataset
 from datetime import datetime, timedelta
 import yfinance as yf
 import numpy as np
@@ -23,12 +23,13 @@ class Assets(Dataset):
         self.t = self.fetched.index.tolist()
 
     def format(self):
-        self.Y =  (self.fetched/np.max(self.fetched)).to_numpy() ## renormalise
+        temp =  (self.fetched/np.max(self.fetched)).to_numpy() ## renormalise
         n = 10 ##>=2
-        recover_data, self.Y = make_next_data(self.Y,n,1000,1)
-        self.X, self.Y = self.Y[:,:-1,:], self.Y[:,-1,:]
-        # recover_x2, recover_y2 = recover_data[:,:-1,:], recover_data[:,-1,:]
+        recover_data, temp = make_next_data(temp,n,1000,1)
+        self.X.ndarray, self.Y.ndarray = temp[:,:-1,:], temp[:,-1,:]
 
-        self.X= np.reshape(self.X,(self.X.shape[0],self.X.shape[1]*self.X.shape[2])) 
+    def store(self):
+        return
 
-
+    def refresh(self):
+        return
