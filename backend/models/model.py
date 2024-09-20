@@ -25,3 +25,8 @@ class BaseModel(ABC):
     @abstractmethod
     def evaluate(self):
         pass
+
+    def run_sequence(self):
+        self.prepare_data()
+        self.build()
+        self.train()

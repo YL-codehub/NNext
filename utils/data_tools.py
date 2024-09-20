@@ -25,7 +25,7 @@ class GenericArray:
     def tensor(self):
         """Convert to a PyTorch tensor if not already cached."""
         if self._tensor is None:
-            self._tensor = torch.from_numpy(self.ndarray)
+            self._tensor = torch.from_numpy(self.ndarray.astype('float32'))
         return self._tensor
 
     def reshaped(self, shape=(-1, 1)):
@@ -42,4 +42,4 @@ class GenericArray:
             return self.tensor
         else:
             new_shape = (self.ndarray.shape[0], -1)
-            return torch.from_numpy(self.ndarray.reshape(new_shape))
+            return torch.from_numpy(self.ndarray.reshape(new_shape).astype('float32'))

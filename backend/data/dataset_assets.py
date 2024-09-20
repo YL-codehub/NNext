@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import yfinance as yf
 import numpy as np
 from utils.series_tools import make_next_data
+from utils.data_tools import GenericArray
+from sklearn.model_selection import train_test_split
 
 class Assets(Dataset):
     """Data fetched from yahoo finance."""
@@ -24,10 +26,12 @@ class Assets(Dataset):
 
     def format(self):
         temp =  (self.fetched/np.max(self.fetched)).to_numpy() ## renormalise
-        n = 10 ##>=2
+        n = self.cfg.rolling_count
         recover_data, temp = make_next_data(temp,n,1000,1)
+        temp = temp/recover_data*100
         self.X.ndarray, self.Y.ndarray = temp[:,:-1,:], temp[:,-1,:]
-
+        self.Xbis.ndarray, self.Ybis.ndarray = recover_data[:,:-1,:], recover_data[:,-1,:]
+        
     def store(self):
         return
 

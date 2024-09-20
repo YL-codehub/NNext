@@ -18,6 +18,14 @@ class Dataset(ABC):
         self.X_test_set = GenericArray()
         self.Y_test_set = GenericArray()
 
+        ## buffer arrays, eg to store og norm or floor value...
+        self.Xbis = GenericArray()
+        self.Ybis = GenericArray()
+        self.Xbis_train_set = GenericArray()
+        self.Ybis_train_set = GenericArray()
+        self.Xbis_test_set = GenericArray()
+        self.Ybis_test_set = GenericArray()
+
     @abstractmethod
     def fetch(self):
         """Downloads data."""
@@ -37,7 +45,10 @@ class Dataset(ABC):
         pass
 
     def split_sets(self, **kwargs):
+        kwargs.setdefault('test_size', .25)
+        kwargs.setdefault('shuffle', False)
         self.X_train_set.ndarray, self.X_test_set.ndarray, self.Y_train_set.ndarray, self.Y_test_set.ndarray = train_test_split(self.X.ndarray, self.Y.ndarray,**kwargs)
+        self.Xbis_train_set.ndarray, self.Xbis_test_set.ndarray, self.Ybis_train_set.ndarray, self.Ybis_test_set.ndarray = train_test_split(self.Xbis.ndarray, self.Ybis.ndarray,**kwargs)
 
     def sequence(self, **kwargs):
         self.fetch()

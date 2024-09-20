@@ -15,7 +15,7 @@ class ModelNNext(BaseModel):
 
     def build(self):
         self.X_train = self.data.X_train_set.reshaped_2D_tensor()
-        self.Y_train = self.data.Y_train_set.reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
+        self.Y_train = self.data.Y_train_set.tensor # reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
         self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
 
     def train(self):
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     model = ModelNNext(cfg)
     model.prepare_data()
     model.build()
-    print(model.model)
+    print(model.evaluate(model.data.X_test_set.reshaped_2D_tensor()))
