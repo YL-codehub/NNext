@@ -46,7 +46,7 @@ class Dataset(ABC):
 
     def split_sets(self, **kwargs):
         kwargs.setdefault('test_size', .25)
-        kwargs.setdefault('shuffle', False)
+        kwargs.setdefault('shuffle', False) ## why not shuffling? to do in training batches at least.
         self.X_train_set.ndarray, self.X_test_set.ndarray, self.Y_train_set.ndarray, self.Y_test_set.ndarray = train_test_split(self.X.ndarray, self.Y.ndarray,**kwargs)
         self.Xbis_train_set.ndarray, self.Xbis_test_set.ndarray, self.Ybis_train_set.ndarray, self.Ybis_test_set.ndarray = train_test_split(self.Xbis.ndarray, self.Ybis.ndarray,**kwargs)
 

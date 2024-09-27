@@ -12,14 +12,18 @@ class ModelNNext(BaseModel):
         self.data = Assets(self.cfg.data)
         self.X_train = None
         self.Y_train = None
+        self.X_valid = None
+        self.Y_valid = None
 
     def build(self):
         self.X_train = self.data.X_train_set.reshaped_2D_tensor()
         self.Y_train = self.data.Y_train_set.tensor # reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
+        self.X_valid = self.data.X_test_set.reshaped_2D_tensor()
+        self.Y_valid = self.data.Y_test_set.tensor
         self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
 
     def train(self):
-        self.model.train(self.X_train,self.Y_train)
+        self.model.train(self.X_train,self.Y_train,self.X_valid, self.Y_valid)
 
     def evaluate(self, X):
         return self.model.predict(X)

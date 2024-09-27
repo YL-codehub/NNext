@@ -4,8 +4,6 @@ Training the most simple neural network on a portion of curve and try to predict
 
 From each a set of n points at fixed intervals, guessing the value of the (n+1)th point.
 
-Spoiler: it works
-
 <p align="center">
   <img src="https://github.com/YL-codehub/NNext/blob/master/image.png"/>
 </p>

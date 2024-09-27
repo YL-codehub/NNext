@@ -18,8 +18,8 @@ model:
     output: [Linear]
   training:
     loss: MSE
-    n_epochs: 500
-    batch_size: 500
+    n_epochs: 100
+    batch_size: 32
 
 
 
