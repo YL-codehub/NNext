@@ -1,0 +1,25 @@
+all:
+data:
+  source: assets
+  entities: ["AAPL", "MSFT", "AMZN", "GOOGL", "TSLA"] # entities are called 'tickers' in finance
+  end_date: # expecting a %Y-%m-%d string, if None then taken as today
+  duration: ['weeks',1000] #in datetime args format
+  rolling_count: 3
+
+  ## add something for feature engineering.
+model:
+  type: Sequential
+  layers:
+    input: [Linear, ReLU]
+    hidden_layers:
+        type: [Linear, ReLU]
+        per_layer: 20
+        count: 4
+    output: [Linear]
+  training:
+    loss: MSELoss
+    n_epochs: 100
+    batch_size: 32
+
+
+

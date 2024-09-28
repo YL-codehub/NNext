@@ -2,7 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from backend.models.model import BaseModel
 from backend.data.dataset_assets import Assets
-from utils.torch_tools import MLP
+# from utils.torch_tools import MLP
+from utils.torch_tools import GeneralNN
 
 class ModelNNext(BaseModel):
     """Abstract Model class that is inherited to all models"""
@@ -20,7 +21,9 @@ class ModelNNext(BaseModel):
         self.Y_train = self.data.Y_train_set.tensor # reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
         self.X_valid = self.data.X_test_set.reshaped_2D_tensor()
         self.Y_valid = self.data.Y_test_set.tensor
-        self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
+        # self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
+        self.model = GeneralNN(self.cfg.model)
+
 
     def train(self):
         self.model.train(self.X_train,self.Y_train,self.X_valid, self.Y_valid)

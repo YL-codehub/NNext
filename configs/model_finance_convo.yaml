@@ -14,6 +14,22 @@ model:
     n_epochs: 100
     batch_size: 32
   architecture:
+    - Conv2d:
+        args: [in_ch, out_ch, 3]  # Specify the in_ch, out_ch, and kernel_size values
+        stride: 1
+        padding: 1
+    - BatchNorm2d:
+        args: [out_ch]
+    - ReLU:
+        inplace: false
+    - Dropout:
+        args: [dropout_p]  # Specify dropout probability
+    - MaxPool2d:
+        args: [2]
+        stride: 2
+        ###add multiple layers like that? maybe need to code my own conv blocks... like in Nvidia.
+    - Flatten():
+        args: []
     - Linear:
         args: [25, 500] 
     - ReLU:
