@@ -100,7 +100,22 @@ class MLP:
             Y= self.model(X)
         return Y
     
+class Conv2d_BRDM(nn.Module):
+    def __init__(self, in_ch, out_ch, dropout_p):
+        kernel_size = 3
+        super().__init__()
 
+        self.model = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size, stride=1, padding=1),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(),
+            nn.Dropout(dropout_p),
+            nn.MaxPool2d(2, stride=2)
+        )
+
+    def forward(self, x):
+        return self.model(x)
+    
 class GeneralNN:
     def __init__(self, cfg):
         if cfg.type == "Sequential":
@@ -111,26 +126,32 @@ class GeneralNN:
         self.loss_fn   = getattr(nn,cfg.training.loss)()
         self.n_epochs   = cfg.training.n_epochs
         self.batch_size   = cfg.training.batch_size
-        self.optimizer = optim.Adam(self.model.parameters())
+        if cfg.training.learning_rate!=None:
+            self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters(), lr=cfg.training.learning_rate)
+        else:
+            self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters())
         self.verbose = 0
+        self.max_number_of_increase = cfg.training.max_increases
 
-    def train(self, Xtrain, Ytrain, Xvalid, Yvalid):
+    def train(self, Xtrain, Ytrain, Xvalid, Yvalid, verbose = True):
         # Initialize a counter for consecutive validation loss increases
-        max_number_of_increase = 3
         valid_loss_increase = 0
         previous_loss_valid = float('inf')  # Set to infinity initially to ensure the first comparison passes
         saved_before_increase = copy.deepcopy(self.model)
+        saved_loss_valid = float('inf')
 
         for epoch in range(self.n_epochs):
-            print('Epoch: {}'.format(epoch))
+            if verbose:
+                print('Epoch: {}'.format(epoch))
             
             # Training and validation loss computation
             loss_train = self.epoch_train_set(Xtrain, Ytrain)
             loss_valid = self.epoch_valid_set(Xvalid, Yvalid)
             
             # Print the training and validation losses
-            print('Train - Loss: {:.4f}'.format(loss_train))
-            print('Valid - Loss: {:.4f}'.format(loss_valid))
+            if verbose:
+                print('Train - Loss: {:.4f}'.format(loss_train))
+                print('Valid - Loss: {:.4f}'.format(loss_valid))
             
             # Check if validation loss increased
             if loss_valid > previous_loss_valid:
@@ -138,15 +159,20 @@ class GeneralNN:
             else:
                 valid_loss_increase = 0  # Reset counter if validation loss decreased or stayed the same
                 saved_before_increase = copy.deepcopy(self.model)
+                saved_loss_valid = loss_valid
+                
             
             # Update the previous validation loss
             previous_loss_valid = loss_valid
             
             # Stop training if validation loss has increased 3 times consecutively
-            if valid_loss_increase >= max_number_of_increase:
-                print(f"Stopping early due to {max_number_of_increase} many consecutive increases in validation loss. Loading back earlier model.")
+            if valid_loss_increase >= self.max_number_of_increase:
+                print(f"Stopping early due to {self.max_number_of_increase} many consecutive increases in validation loss. Loading back earlier model.")
                 self.model = copy.deepcopy(saved_before_increase)
+                loss_valid = saved_loss_valid
                 break
+        return loss_valid
+        
     
     def epoch_train_set(self, Xtrain, Ytrain):
         self.model.train()
@@ -254,6 +280,8 @@ def build_seq_network(architecture, builder=Builder(nn.__dict__)):
         layers.append(builder(name, *args, **kwargs))
     return nn.Sequential(*layers)
 
+
+    
 if __name__ == "__main__":
     # from configs.config import get_cfg
     # cfg = get_cfg("model_finance_old.yaml")

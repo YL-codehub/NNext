@@ -4,24 +4,27 @@ data:
   entities: ["AAPL", "MSFT", "AMZN", "GOOGL", "TSLA"] # entities are called 'tickers' in finance
   end_date: # expecting a %Y-%m-%d string, if None then taken as today
   duration: ['weeks',1000] #in datetime args format
-  rolling_count: 6 #including n+1 in that case
+  rolling_count: 15 #including n+1 in that case
 
   ## add something for feature engineering.
 model:
   type: Sequential
   training:
     loss: MSELoss
-    n_epochs: 100
+    n_epochs: 20
     batch_size: 32
+    max_increases: 50
   architecture:
     - Linear:
-        args: [25, 500] 
+        args: [70, 500] 
     - ReLU:
         inplace: false
     - Linear:
         args: [500, 500] 
     - ReLU:
         inplace: false
+    - Dropout:
+        args: [0.5]
     - Linear:
         args: [500, 500] 
     - ReLU:

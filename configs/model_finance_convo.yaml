@@ -4,7 +4,7 @@ data:
   entities: ["AAPL", "MSFT", "AMZN", "GOOGL", "TSLA"] # entities are called 'tickers' in finance
   end_date: # expecting a %Y-%m-%d string, if None then taken as today
   duration: ['weeks',1000] #in datetime args format
-  rolling_count: 6 #including n+1 in that case
+  rolling_count: 11 #including n+1 in that case
 
   ## add something for feature engineering.
 model:
@@ -13,41 +13,33 @@ model:
     loss: MSELoss
     n_epochs: 100
     batch_size: 32
+    max_increases: 100
+    learning_rate: 
+    optimiser: Adam
   architecture:
     - Conv2d:
-        args: [in_ch, out_ch, 3]  # Specify the in_ch, out_ch, and kernel_size values
-        stride: 1
-        padding: 1
+        args: [1, 8, 3, 1, 1]  # input_channels, output_channels, kernel_size, stride, padding
+        # 8 x 10 x 5
     - BatchNorm2d:
-        args: [out_ch]
+        args: [8]
     - ReLU:
-        inplace: false
-    - Dropout:
-        args: [dropout_p]  # Specify dropout probability
-    - MaxPool2d:
-        args: [2]
-        stride: 2
-        ###add multiple layers like that? maybe need to code my own conv blocks... like in Nvidia.
-    - Flatten():
-        args: []
+        inplace: false    
+    - Flatten: {}
     - Linear:
-        args: [25, 500] 
+        args: [400, 128]  # output from conv layers flattened
     - ReLU:
         inplace: false
     - Linear:
-        args: [500, 500] 
+        args: [128, 256]
     - ReLU:
         inplace: false
     - Linear:
-        args: [500, 500] 
+        args: [256,128]
     - ReLU:
         inplace: false
     - Linear:
-        args: [500, 500] 
+        args: [128,64]
     - ReLU:
         inplace: false
     - Linear:
-        args: [500, 5] 
-
-
-
+        args: [64, 5]  # final output to match the 1x5 target
