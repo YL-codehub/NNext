@@ -27,7 +27,12 @@ class GenericArray:
         if self._tensor is None:
             self._tensor = torch.from_numpy(self.ndarray.astype('float32'))
         return self._tensor
-
+    
+    @property
+    def tensorT(self):
+        '''swapping to last dimensions'''
+        return torch.transpose(self.tensor,-2,-1)
+    
     def reshaped(self, shape=(-1, 1)):
         """Reshape the internal NumPy array."""
         return self.ndarray.reshape(shape)

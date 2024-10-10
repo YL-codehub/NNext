@@ -3,7 +3,12 @@ import torch.nn as nn
 import torch.optim as optim
 import copy 
 import collections
+from utils.optimisation_tools import MASELoss
+import numpy as np
 
+custom_losses = {
+    'MASELoss': MASELoss,
+}
 
 
 # Create the model class
@@ -115,7 +120,35 @@ class Conv2d_BRDM(nn.Module):
 
     def forward(self, x):
         return self.model(x)
-    
+
+class CustomLRScheduler:
+    def __init__(self, optimizer, initial_lr, num_epochs, restart_interval):
+        self.optimizer = optimizer
+        self.initial_lr = initial_lr
+        self.num_epochs = num_epochs
+        self.restart_interval = restart_interval
+        self.current_epoch = 0
+
+        # Initialize learning rates for all parameter groups
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = self.initial_lr
+
+    def step(self):
+        self.current_epoch += 1
+
+        if self.current_epoch % self.restart_interval == 0:
+            # Restart learning rate to the initial value
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = self.initial_lr  
+        else:
+            # Calculate the new learning rate with cosine decay
+            for param_group in self.optimizer.param_groups:
+                # Cosine decay formula
+                lr_decay = 0.5 * (1 + np.cos(np.pi * (self.current_epoch % self.restart_interval) / self.restart_interval))
+                param_group['lr'] = self.initial_lr * lr_decay
+
+        print('lr = ',param_group['lr'] )
+
 class GeneralNN:
     def __init__(self, cfg):
         if cfg.type == "Sequential":
@@ -123,13 +156,26 @@ class GeneralNN:
         else:
             raise KeyError(f"The {cfg.type} cfgtecture has no been implemented.")
 
-        self.loss_fn   = getattr(nn,cfg.training.loss)()
+        if hasattr(nn, cfg.training.loss):  # Check if the loss is a built-in PyTorch loss
+            self.loss_fn = getattr(nn, cfg.training.loss)()
+        elif cfg.training.loss in custom_losses:  # Check if the loss is a custom loss
+            self.loss_fn = custom_losses[cfg.training.loss]()
+        else:
+            raise ValueError(f"Unknown loss function: {cfg.training.loss}")
+        
         self.n_epochs   = cfg.training.n_epochs
         self.batch_size   = cfg.training.batch_size
+
+        self.custom_scheduler = None
         if cfg.training.learning_rate!=None:
-            self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters(), lr=cfg.training.learning_rate)
+            if cfg.training.learning_rate =='scheduled_restart':
+                self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters())
+                self.custom_scheduler = CustomLRScheduler(self.optimizer, initial_lr=0.001, num_epochs=self.n_epochs, restart_interval=self.n_epochs//5)
+            else:
+                self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters(), lr=cfg.training.learning_rate)
         else:
             self.optimizer = getattr(optim,cfg.training.optimiser)(self.model.parameters())
+
         self.verbose = 0
         self.max_number_of_increase = cfg.training.max_increases
 
@@ -171,6 +217,8 @@ class GeneralNN:
                 self.model = copy.deepcopy(saved_before_increase)
                 loss_valid = saved_loss_valid
                 break
+            if self.custom_scheduler!= None:
+                self.custom_scheduler.step()
         return loss_valid
         
     

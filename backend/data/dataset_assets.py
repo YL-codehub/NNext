@@ -25,13 +25,16 @@ class Assets(Dataset):
         self.t = self.fetched.index.tolist()
 
     def format(self):
-        temp =  (self.fetched/np.max(self.fetched)).to_numpy() ## renormalise
+        # temp =  (self.fetched/np.max(self.fetched)).to_numpy() ## renormalise
+        temp =  (self.fetched).to_numpy() ## renormalise
         n = self.cfg.rolling_count
         recover_data, temp = make_next_data(temp,n,1000,1)
-        temp = temp/recover_data*100
-        self.X.ndarray, self.Y.ndarray = temp[:,:-1,:], temp[:,-1,:]
+        # temp = temp/recover_data*100
+        # self.X.ndarray, self.Y.ndarray = temp[:,:-1,:], temp[:,-1,:] # this thus contains the pct changes
+        # self.Xbis.ndarray, self.Ybis.ndarray = recover_data[:,:-1,:], recover_data[:,-1,:] # while this contains the real 'floor' values
+        self.X.ndarray, self.Y.ndarray = recover_data[:,:-1,:], recover_data[:,-1,:]
         self.Xbis.ndarray, self.Ybis.ndarray = recover_data[:,:-1,:], recover_data[:,-1,:]
-        
+
     def store(self):
         return
 

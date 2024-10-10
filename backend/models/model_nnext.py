@@ -5,6 +5,7 @@ from backend.data.dataset_assets import Assets
 # from utils.torch_tools import MLP
 from utils.torch_tools import GeneralNN
 
+
 class ModelNNext(BaseModel):
     """Abstract Model class that is inherited to all models"""
 
@@ -22,8 +23,8 @@ class ModelNNext(BaseModel):
             self.X_train = self.data.X_train_set.reshaped_2D_tensor()
             self.X_valid = self.data.X_test_set.reshaped_2D_tensor()
         else:
-            self.X_train = self.data.X_train_set.tensor.unsqueeze(1)
-            self.X_valid = self.data.X_test_set.tensor.unsqueeze(1)
+            self.X_train = self.data.X_train_set.tensorT #.unsqueeze(1)
+            self.X_valid = self.data.X_test_set.tensorT #.unsqueeze(1)
         self.Y_train = self.data.Y_train_set.tensor # reshaped_tensor((-1,self.data.X_train_set.ndarray.shape[2]))
         self.Y_valid = self.data.Y_test_set.tensor
         # self.model = MLP(self.cfg.model,(self.X_train.shape[1],self.data.Y_train_set.ndarray.shape[1]))
